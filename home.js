@@ -46,9 +46,8 @@ function renderProducts(products) {
 
   products.forEach(product => {
     const docId = product.id;
-    // CURRENCY SYMBOL CHANGED TO € HERE
-    let priceHTML = `€${product.price}`;
-    if (product.sale_price) priceHTML = `<span style="text-decoration: line-through; color: var(--muted); margin-right: 8px; font-size: 0.9em;">€${product.price}</span> <span style="color: var(--red); font-weight: 600;">€${product.sale_price}</span>`;
+    let priceHTML = `$${product.price}`;
+    if (product.sale_price) priceHTML = `<span style="text-decoration: line-through; color: var(--muted); margin-right: 8px; font-size: 0.9em;">$${product.price}</span> <span style="color: var(--red); font-weight: 600;">$${product.sale_price}</span>`;
     let buttonText = product.status === 'preorder' ? 'Pre-Order' : 'View Item';
     let badgeHTML = product.status === 'preorder' ? `<span style="display: inline-block; background: var(--text); color: #fff; font-size: 0.65rem; padding: 2px 6px; margin-bottom: 8px; letter-spacing: 0.1em;">PRE-ORDER</span>` : '';
 
