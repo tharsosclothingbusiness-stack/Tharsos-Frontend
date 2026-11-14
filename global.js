@@ -1,6 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+// =========================================================
+// 📱 MOBILE BOTTOM NAV TOGGLE
+// To disable the mobile bottom bar entirely, change this to false:
+const ENABLE_MOBILE_BOTTOM_NAV = true;
+// =========================================================
+
 const firebaseConfig = {
   apiKey: "AIzaSyAKYHT7H2fiixbgrvadNEj10yz5HlIEI1U",
   authDomain: "tharsos-af07d.firebaseapp.com",
@@ -44,7 +50,7 @@ const headerHTML = `
   <div class="overlay" id="overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-head">
-      <a href="index.html" class="wordmark"><img src="logo.svg" alt="THARSOS" style="height: 45px; max-width: 140px; width: auto;"></a>
+      <a href="index.html" class="wordmark"><img src="logo.svg" alt="THARSOS" style="height: 40px; max-width: 140px; width: auto;"></a>
       <button class="close" id="closeSidebar">&times;</button>
     </div>
     <nav class="sidebar-nav">
@@ -54,6 +60,13 @@ const headerHTML = `
       <a href="clearance.html" id="side-clearance" class="clearance" style="display:none;">CLEARANCE</a>
       <a href="contact.html">CONTACT</a>
     </nav>
+    <!-- Added Cart and Contact to the bottom of the sidebar -->
+    <div class="sidebar-footer">
+      <a href="cart.html" class="sidebar-cart-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        Cart (<span class="sidebar-cart-count">0</span>)
+      </a>
+    </div>
   </aside>
 `;
 
@@ -115,12 +128,20 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (headerDiv) headerDiv.innerHTML = headerHTML;
   if (footerDiv) footerDiv.innerHTML = footerHTML;
-  document.body.insertAdjacentHTML('beforeend', mobileNavHTML);
+  
+  // Inject Mobile Bottom Nav ONLY if enabled
+  if (ENABLE_MOBILE_BOTTOM_NAV) {
+    document.body.insertAdjacentHTML('beforeend', mobileNavHTML);
+  }
+  
   document.body.insertAdjacentHTML('beforeend', globalModalsHTML);
 
   const updateCartCount = () => { 
+    const count = (JSON.parse(localStorage.getItem('tharsos_cart')) || []).length;
     const el = document.getElementById('cartCount'); 
-    if(el) el.innerText = (JSON.parse(localStorage.getItem('tharsos_cart')) || []).length; 
+    if(el) el.innerText = count; 
+    const sidebarEl = document.querySelector('.sidebar-cart-count');
+    if(sidebarEl) sidebarEl.innerText = count;
   };
   updateCartCount();
 
