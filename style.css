@@ -244,4 +244,80 @@ p { color: var(--muted); }
 
   .mission-item h2 { font-size: 2rem; }
   .mission-item p { font-size: 1.1rem; }
+
+   /* =========================================================
+   POLISH & ROUGH EDGE FIXES
+   ========================================================= */
+
+/* Fallback for missing hero image */
+#hero-section {
+  background-color: var(--blue-banner);
+  background-image: linear-gradient(45deg, #1A2530 25%, #2a3b4c 25%, #2a3b4c 50%, #1A2530 50%, #1A2530 75%, #2a3b4c 75%, #2a3b4c 100%);
+  background-size: 40px 40px;
+}
+
+/* Product Card Hover Effects */
+.product {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.product:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+.product .img-ph-product img {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.product:hover .img-ph-product img {
+  transform: scale(1.05);
+}
+
+/* Editorial Collection Block Polish */
+.editorial-block {
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+.editorial-block:hover {
+  opacity: 0.95;
+}
+.editorial-image {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  overflow: hidden;
+}
+.editorial-block:hover .editorial-image {
+  transform: scale(1.02);
+}
+.editorial-content h3 {
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.editorial-content p {
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+/* Hero Text Overlay - only show if Button exists in Home.js */
+.hero-text-overlay {
+  background: linear-gradient(to right, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 100%);
+}
+
+/* Mobile Spacing Fixes */
+@media (max-width: 767px) {
+  .hero-text-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 60%);
+    align-items: center;
+    text-align: center;
+    padding-bottom: 80px;
+  }
+  .editorial-content h3 {
+    font-size: 2rem;
+  }
+  .editorial-content p {
+    font-size: 1rem;
+  }
+  .product h3 {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
