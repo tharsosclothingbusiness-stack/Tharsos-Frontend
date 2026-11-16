@@ -4,94 +4,119 @@ import { collection, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/
 let allProducts = [];
 let collectionsData = {};
 let bannersData = {};
+let siteConfig = null;
 let currentSlide = 0;
 let slideInterval = null;
 
 // 1. Fetch Banners Library
 onSnapshot(collection(db, "banners"), (snapshot) => {
   snapshot.forEach(d => { bannersData[d.id] = d.data(); });
+  renderHero(); // Re-render if data arrives late
 });
 
-// 2. Fetch Settings & Build Hero
+// 2. Fetch Collections
+onSnapshot(collection(db, "collections"), (snapshot) => {
+  snapshot.forEach(d => { collectionsData[d.data().name] = d.data(); });
+  renderHero(); // Re-render if data arrives late
+});
+
+// 3. Fetch Settings
 onSnapshot(doc(db, "config", "site"), (docSnap) => {
   if (docSnap.exists()) {
-    const data = docSnap.data();
-    const heroSection = document.getElementById('hero-section');
-    const heroContainer = document.getElementById('hero-carousel-container');
-    
-    // Check toggle
-    if (data.enableHero === false) {
-      heroSection.style.display = 'none';
-      return;
-    } else {
-      heroSection.style.display = 'flex';
-    }
-
-    // Clear existing interval
-    if (slideInterval) clearInterval(slideInterval);
-
-    // Build Hero Content based on Type
-    if (data.heroType === 'collection' && data.heroCollection) {
-      const col = collectionsData[data.heroCollection];
-      if (col) {
-        const deskImg = col.banner_image;
-        const mobImg = col.banner_image_mobile || col.banner_image;
-        heroContainer.innerHTML = `
-          <picture>
-            <source media="(max-width: 767px)" srcset="${mobImg}">
-            <img src="${deskImg}" class="carousel-slide active" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
-          </picture>
-        `;
-        // Note: We don't show dots for a single static collection hero
-      }
-    } else if (data.carouselBanners && data.carouselBanners.length > 0) {
-      heroContainer.innerHTML = '';
-      const dotsContainer = document.createElement('div');
-      dotsContainer.className = 'carousel-dots';
-
-      data.carouselBanners.forEach((bannerId, index) => {
-        const b = bannersData[bannerId];
-        if (!b) return;
-
-        // Create Slide
-        const slide = document.createElement('div');
-        slide.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
-        slide.innerHTML = `
-          <picture>
-            <source media="(max-width: 767px)" srcset="${b.mobileImage || b.desktopImage}">
-            <img src="${b.desktopImage}" alt="${b.title}" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
-          </picture>
-          <div class="hero-text-overlay">
-            <h1>${b.title}</h1>
-            <a href="${b.link}" class="btn btn-solid">${b.btnText}</a>
-          </div>
-        `;
-        heroContainer.appendChild(slide);
-
-        // Create Dot
-        const dot = document.createElement('button');
-        dot.className = `carousel-dot ${index === 0 ? 'active' : ''}`;
-        dot.onclick = () => goToSlide(index);
-        dotsContainer.appendChild(dot);
-      });
-
-      heroContainer.appendChild(dotsContainer);
-
-      // Start Auto-play if more than 1 banner
-      if (data.carouselBanners.length > 1) {
-        slideInterval = setInterval(() => {
-          const slides = heroContainer.querySelectorAll('.carousel-slide');
-          const dots = dotsContainer.querySelectorAll('.carousel-dot');
-          slides[currentSlide].classList.remove('active');
-          dots[currentSlide].classList.remove('active');
-          currentSlide = (currentSlide + 1) % slides.length;
-          slides[currentSlide].classList.add('active');
-          dots[currentSlide].classList.add('active');
-        }, 5000);
-      }
-    }
+    siteConfig = docSnap.data();
+    renderHero();
   }
 });
+
+// 4. Master Hero Rendering Function
+function renderHero() {
+  const heroSection = document.getElementById('hero-section');
+  const heroContainer = document.getElementById('hero-carousel-container');
+  
+  // Wait until we have config and at least one type of image data
+  if (!siteConfig) return;
+
+  if (siteConfig.enableHero === false) {
+    heroSection.style.display = 'none';
+    return;
+  } else {
+    heroSection.style.display = 'flex';
+  }
+
+  if (slideInterval) clearInterval(slideInterval);
+
+  // A. Single Collection Hero
+  if (siteConfig.heroType === 'collection' && siteConfig.heroCollection) {
+    const col = collectionsData[siteConfig.heroCollection];
+    if (col) {
+      const deskImg = col.banner_image;
+      const mobImg = col.banner_image_mobile || col.banner_image;
+      heroContainer.innerHTML = `
+        <picture>
+          <source media="(max-width: 767px)" srcset="${mobImg}">
+          <img src="${deskImg}" class="carousel-slide active" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
+        </picture>
+        <div class="hero-text-overlay">
+          <h1>${col.name}</h1>
+          <a href="collection.html?name=${encodeURIComponent(col.name)}" class="btn btn-solid">Shop Now</a>
+        </div>
+      `;
+    }
+  } 
+  // B. Carousel Hero
+  else if (siteConfig.carouselBanners && siteConfig.carouselBanners.length > 0) {
+    heroContainer.innerHTML = '';
+    const dotsContainer = document.createElement('div');
+    dotsContainer.className = 'carousel-dots';
+    
+    let validSlidesCount = 0;
+
+    siteConfig.carouselBanners.forEach((bannerId, index) => {
+      const b = bannersData[bannerId];
+      if (!b) return; // Skip if banner was deleted
+
+      // Create Slide
+      const slide = document.createElement('div');
+      slide.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
+      slide.innerHTML = `
+        <picture>
+          <source media="(max-width: 767px)" srcset="${b.mobileImage || b.desktopImage}">
+          <img src="${b.desktopImage}" alt="${b.title}" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
+        </picture>
+        <div class="hero-text-overlay">
+          <h1>${b.title}</h1>
+          <a href="${b.link}" class="btn btn-solid">${b.btnText}</a>
+        </div>
+      `;
+      heroContainer.appendChild(slide);
+
+      // Create Dot
+      const dot = document.createElement('button');
+      dot.className = `carousel-dot ${index === 0 ? 'active' : ''}`;
+      dot.onclick = () => goToSlide(index);
+      dotsContainer.appendChild(dot);
+      
+      validSlidesCount++;
+    });
+
+    heroContainer.appendChild(dotsContainer);
+
+    // Start Auto-play if more than 1 banner
+    if (validSlidesCount > 1) {
+      slideInterval = setInterval(() => {
+        const slides = heroContainer.querySelectorAll('.carousel-slide');
+        const dots = dotsContainer.querySelectorAll('.carousel-dot');
+        if(!slides.length) return;
+        
+        slides[currentSlide].classList.remove('active');
+        dots[currentSlide].classList.remove('active');
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add('active');
+        dots[currentSlide].classList.add('active');
+      }, 5000);
+    }
+  }
+}
 
 function goToSlide(index) {
   const slides = document.querySelectorAll('.carousel-slide');
@@ -106,11 +131,7 @@ function goToSlide(index) {
   dots[currentSlide].classList.add('active');
 }
 
-onSnapshot(collection(db, "collections"), (snapshot) => {
-  snapshot.forEach(d => { collectionsData[d.data().name] = d.data(); });
-});
-
-// 3. Fetch Products
+// 5. Fetch Products
 const bestsellersGrid = document.getElementById('bestsellers-grid');
 const allProductsGrid = document.getElementById('all-products-grid');
 
