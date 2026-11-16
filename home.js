@@ -3,29 +3,114 @@ import { collection, onSnapshot, doc } from "https://www.gstatic.com/firebasejs/
 
 let allProducts = [];
 let collectionsData = {};
+let bannersData = {};
+let currentSlide = 0;
+let slideInterval = null;
 
+// 1. Fetch Banners Library
+onSnapshot(collection(db, "banners"), (snapshot) => {
+  snapshot.forEach(d => { bannersData[d.id] = d.data(); });
+});
+
+// 2. Fetch Settings & Build Hero
 onSnapshot(doc(db, "config", "site"), (docSnap) => {
   if (docSnap.exists()) {
     const data = docSnap.data();
-    const heroBg = document.getElementById('hero-bg');
-    const heroTitle = document.getElementById('hero-title-text');
-    const heroBtn = document.getElementById('hero-btn-text');
+    const heroSection = document.getElementById('hero-section');
+    const heroContainer = document.getElementById('hero-carousel-container');
+    
+    // Check toggle
+    if (data.enableHero === false) {
+      heroSection.style.display = 'none';
+      return;
+    } else {
+      heroSection.style.display = 'flex';
+    }
 
+    // Clear existing interval
+    if (slideInterval) clearInterval(slideInterval);
+
+    // Build Hero Content based on Type
     if (data.heroType === 'collection' && data.heroCollection) {
       const col = collectionsData[data.heroCollection];
-      if (col && col.banner_image) heroBg.innerHTML = `<img src="${col.banner_image}" style="width: 100%; height: 100%; object-fit: cover;">`;
-      if (data.heroTitle) heroTitle.innerHTML = data.heroTitle.replace(/\n/g, '<br>');
-      if (data.heroBtn) heroBtn.innerText = data.heroBtn;
-    } else if (data.carouselImages && data.carouselImages.length > 0) {
-      heroBg.innerHTML = `<img src="${data.carouselImages[0]}" style="width: 100%; height: 100%; object-fit: cover;">`;
+      if (col) {
+        const deskImg = col.banner_image;
+        const mobImg = col.banner_image_mobile || col.banner_image;
+        heroContainer.innerHTML = `
+          <picture>
+            <source media="(max-width: 767px)" srcset="${mobImg}">
+            <img src="${deskImg}" class="carousel-slide active" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
+          </picture>
+        `;
+        // Note: We don't show dots for a single static collection hero
+      }
+    } else if (data.carouselBanners && data.carouselBanners.length > 0) {
+      heroContainer.innerHTML = '';
+      const dotsContainer = document.createElement('div');
+      dotsContainer.className = 'carousel-dots';
+
+      data.carouselBanners.forEach((bannerId, index) => {
+        const b = bannersData[bannerId];
+        if (!b) return;
+
+        // Create Slide
+        const slide = document.createElement('div');
+        slide.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
+        slide.innerHTML = `
+          <picture>
+            <source media="(max-width: 767px)" srcset="${b.mobileImage || b.desktopImage}">
+            <img src="${b.desktopImage}" alt="${b.title}" style="width:100%; height:100%; object-fit:cover; position:absolute; inset:0;">
+          </picture>
+          <div class="hero-text-overlay">
+            <h1>${b.title}</h1>
+            <a href="${b.link}" class="btn btn-solid">${b.btnText}</a>
+          </div>
+        `;
+        heroContainer.appendChild(slide);
+
+        // Create Dot
+        const dot = document.createElement('button');
+        dot.className = `carousel-dot ${index === 0 ? 'active' : ''}`;
+        dot.onclick = () => goToSlide(index);
+        dotsContainer.appendChild(dot);
+      });
+
+      heroContainer.appendChild(dotsContainer);
+
+      // Start Auto-play if more than 1 banner
+      if (data.carouselBanners.length > 1) {
+        slideInterval = setInterval(() => {
+          const slides = heroContainer.querySelectorAll('.carousel-slide');
+          const dots = dotsContainer.querySelectorAll('.carousel-dot');
+          slides[currentSlide].classList.remove('active');
+          dots[currentSlide].classList.remove('active');
+          currentSlide = (currentSlide + 1) % slides.length;
+          slides[currentSlide].classList.add('active');
+          dots[currentSlide].classList.add('active');
+        }, 5000);
+      }
     }
   }
 });
+
+function goToSlide(index) {
+  const slides = document.querySelectorAll('.carousel-slide');
+  const dots = document.querySelectorAll('.carousel-dot');
+  if (!slides.length) return;
+  
+  clearInterval(slideInterval);
+  slides[currentSlide].classList.remove('active');
+  dots[currentSlide].classList.remove('active');
+  currentSlide = index;
+  slides[currentSlide].classList.add('active');
+  dots[currentSlide].classList.add('active');
+}
 
 onSnapshot(collection(db, "collections"), (snapshot) => {
   snapshot.forEach(d => { collectionsData[d.data().name] = d.data(); });
 });
 
+// 3. Fetch Products
 const bestsellersGrid = document.getElementById('bestsellers-grid');
 const allProductsGrid = document.getElementById('all-products-grid');
 
