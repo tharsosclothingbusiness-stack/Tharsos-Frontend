@@ -31,7 +31,11 @@ function renderHero() {
   
   if (!siteConfig) return;
 
-  if (siteConfig.enableHero === false) {
+  // If hero is disabled, OR if no banners are selected for carousel, hide it.
+  const noBannersSelected = siteConfig.heroType === 'carousel' && (!siteConfig.carouselBanners || siteConfig.carouselBanners.length === 0);
+  const noCollectionSelected = siteConfig.heroType === 'collection' && !siteConfig.heroCollection;
+
+  if (siteConfig.enableHero === false || noBannersSelected || noCollectionSelected) {
     heroSection.style.display = 'none';
     return;
   } else {
@@ -56,8 +60,7 @@ function renderHero() {
         </div>
       `;
     } else {
-      // Fallback if collection image is missing
-      heroSection.style.backgroundColor = 'var(--blue-banner)';
+      heroSection.style.display = 'none'; // Hide if image is missing
     }
   } 
   
@@ -76,7 +79,6 @@ function renderHero() {
       const slide = document.createElement('div');
       slide.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
       
-      // Only render button if showBtn is true
       const btnHTML = b.showBtn ? `<a href="${b.link}" class="btn btn-solid">${b.btnText}</a>` : '';
 
       slide.innerHTML = `
@@ -98,6 +100,11 @@ function renderHero() {
       validSlidesCount++;
     });
 
+    if (validSlidesCount === 0) {
+       heroSection.style.display = 'none';
+       return;
+    }
+
     heroContainer.appendChild(dotsContainer);
 
     if (validSlidesCount > 1) {
@@ -113,9 +120,6 @@ function renderHero() {
         dots[currentSlide].classList.add('active');
       }, 5000);
     }
-  } else {
-    // Fallback if carousel is empty
-    heroSection.style.backgroundColor = 'var(--blue-banner)';
   }
 }
 
@@ -132,7 +136,7 @@ function goToSlide(index) {
   dots[currentSlide].classList.add('active');
 }
 
-// Product logic remains exactly the same
+// Product logic
 const bestsellersGrid = document.getElementById('bestsellers-grid');
 const allProductsGrid = document.getElementById('all-products-grid');
 
