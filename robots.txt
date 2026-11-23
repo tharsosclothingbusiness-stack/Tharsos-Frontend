@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /cart.html
+Disallow: /admin
+Sitemap: https://tharsosclothingbusiness-stack.github.io/Tharsos-Frontend/sitemap.xml
