@@ -98,7 +98,10 @@ const footerHTML = `
 const globalModalsHTML = `
   <div class="cookie-banner" id="cookieBanner">
     <p>We use cookies to enhance your experience. By clicking "Accept", you agree to our use of cookies. <a href="legal.html#privacy">Read our Privacy Policy</a>.</p>
-    <button id="acceptCookies" class="btn btn-solid">Accept</button>
+    <div class="cookie-btns">
+      <button id="rejectCookies" class="btn btn-ghost">Reject</button>
+      <button id="acceptCookies" class="btn btn-solid">Accept</button>
+    </div>
   </div>
   <div class="wip-banner" id="wipBanner">
     <div class="wip-content"><h2>Work in Progress</h2><p>This section is under construction.</p><button class="btn btn-ghost" id="closeWip">Return</button></div>
@@ -146,14 +149,28 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   if (closeWipBtn) closeWipBtn.addEventListener('click', () => { wipBanner.classList.remove('open'); document.body.classList.remove('no-scroll'); });
 
+  // --- COOKIE BANNER LOGIC ---
   const cookieBanner = document.getElementById('cookieBanner');
   const acceptCookiesBtn = document.getElementById('acceptCookies');
-  if (!localStorage.getItem('tharsos_cookie_consent') && cookieBanner) {
+  const rejectCookiesBtn = document.getElementById('rejectCookies');
+
+  // Check if consent has already been given/denied
+  const consentStatus = localStorage.getItem('tharsos_cookie_consent');
+  if (!consentStatus && cookieBanner) {
     setTimeout(() => cookieBanner.classList.add('show'), 1000);
   }
+
   if (acceptCookiesBtn) {
     acceptCookiesBtn.addEventListener('click', () => {
       localStorage.setItem('tharsos_cookie_consent', 'true');
+      cookieBanner.classList.remove('show');
+      // Future: Load Google Analytics here
+    });
+  }
+
+  if (rejectCookiesBtn) {
+    rejectCookiesBtn.addEventListener('click', () => {
+      localStorage.setItem('tharsos_cookie_consent', 'false');
       cookieBanner.classList.remove('show');
     });
   }
