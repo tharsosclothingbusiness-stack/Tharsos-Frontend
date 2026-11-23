@@ -204,4 +204,10 @@ p { color: var(--muted); }
 
   .mission-item h2 { font-size: 2rem; }
   .mission-item p { font-size: 1.1rem; }
-}
+
+/* CONTACT FORM */
+.contact-form { max-width: 500px; margin: 0 auto; text-align: left; }
+.contact-form .form-group { margin-bottom: 20px; }
+.contact-form label { display: block; font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+.contact-form input, .contact-form textarea { width: 100%; padding: 12px; border: 1px solid var(--border); font-family: var(--font-body); font-size: 1rem; outline: none; transition: border 0.2s; background: var(--bg); }
+.contact-form input:focus, .contact-form textarea:focus { border-color: var(--text); }
