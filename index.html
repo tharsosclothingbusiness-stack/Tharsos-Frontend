@@ -4,47 +4,58 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tharsos — Catholic Menswear</title>
+  <meta name="description" content="Tharsos makes premium Catholic menswear. Holy courage in wearable form. 10% of profit goes to pro-life charities.">
   
+  <!-- FAVICON -->
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <!-- OPEN GRAPH (SOCIAL SHARING) -->
   <meta property="og:title" content="Tharsos — Catholic Menswear">
   <meta property="og:description" content="Holy courage in wearable form. Premium garments for the Church Militant.">
-  
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tharsosclothingbusiness-stack.github.io/Tharsos-Frontend/">
+  <!-- Replace with your actual URL once live -->
+  <meta property="og:image" content="https://tharsosclothingbusiness-stack.github.io/Tharsos-Frontend/social-share.jpg"> 
+
+  <!-- JSON-LD STRUCTURED DATA FOR GOOGLE -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Tharsos Clothing",
+    "url": "https://tharsosclothingbusiness-stack.github.io/Tharsos-Frontend/",
+    "logo": "https://tharsosclothingbusiness-stack.github.io/Tharsos-Frontend/logo.svg",
+    "sameAs": [
+      "https://www.instagram.com/tharsos.clothing/",
+      "https://x.com/TharsosClothing"
+    ]
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=32">
+  <link rel="stylesheet" href="style.css?v=33">
 </head>
 <body>
   <div id="global-header"></div>
-
+  <!-- ... Rest of your index.html remains exactly the same ... -->
   <main>
-    <!-- DYNAMIC HERO (100% controlled by home.js) -->
     <section class="shop-hero" id="hero-section" style="display: none;">
       <div class="shop-hero-carousel" id="hero-carousel-container"></div>
     </section>
 
-    <!-- BRAND VALUES STRIP -->
     <section class="brand-values">
       <div class="brand-values-inner">
-        <div class="value-item">
-          <h3>Uncompromising Quality</h3>
-          <p>Sourced from the highest-tier manufacturing partners.</p>
-        </div>
-        <div class="value-item">
-          <h3>A Profession of Faith</h3>
-          <p>Not feel-good quotes. A bold, wearable statement of belief.</p>
-        </div>
-        <div class="value-item">
-          <h3>Radical Charity</h3>
-          <p>10% of every profit goes directly to pro-life charities.</p>
-        </div>
+        <div class="value-item"><h3>Uncompromising Quality</h3><p>Sourced from the highest-tier manufacturing partners.</p></div>
+        <div class="value-item"><h3>A Profession of Faith</h3><p>Not feel-good quotes. A bold, wearable statement of belief.</p></div>
+        <div class="value-item"><h3>Radical Charity</h3><p>10% of every profit goes directly to pro-life charities.</p></div>
       </div>
     </section>
 
     <section class="bestsellers" id="bestsellers">
       <div class="section-head"><h2>Bestsellers</h2></div>
-      <div class="grid" id="bestsellers-grid">
-        <p style="grid-column: 1 / -1; text-align: center; color: var(--muted);">Loading...</p>
-      </div>
+      <div class="grid" id="bestsellers-grid"><p style="grid-column: 1 / -1; text-align: center; color: var(--muted);">Loading...</p></div>
     </section>
 
     <section class="bestsellers" id="all-products" style="padding-top: 0;">
@@ -57,6 +68,6 @@
   </main>
 
   <div id="global-footer"></div>
-  <script type="module" src="home.js?v=32"></script>
+  <script type="module" src="home.js?v=33"></script>
 </body>
 </html>
